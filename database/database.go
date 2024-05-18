@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -15,7 +16,6 @@ var userCollection *mongo.Collection
 
 func GetClient() *mongo.Client {
 	uri := os.Getenv("MONGO_URI")
-	// uri := "mongodb://mongo:27017"
 
 	if client != nil {
 		return client
@@ -36,6 +36,21 @@ func GetCollection(client *mongo.Client, collectioName string) *mongo.Collection
 	}
 	userCollection := client.Database("ExchangeRateTracker").Collection(collectioName)
 	return userCollection
+}
+
+func MigrateMongoDB() error {
+	// todo: rewrite when another collections will be added
+	client := GetClient()
+
+	collection := GetCollection(client, "users")
+
+	indexModel := mongo.IndexModel{
+		Keys:    bson.D{{Key: "_id", Value: 1}},
+		Options: options.Index(),
+	}
+
+	_, err := collection.Indexes().CreateOne(context.Background(), indexModel)
+	return err
 }
 
 func Disconnect() {

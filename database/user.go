@@ -13,7 +13,7 @@ import (
 
 var COLLECTION = "users"
 
-func List_Users() []User {
+func GetSubscribedUsers() []User {
 	client := GetClient()
 	UserCollection := GetCollection(client, COLLECTION)
 
@@ -22,12 +22,12 @@ func List_Users() []User {
 	var userList []User
 	cursor, err := UserCollection.Find(ctx, bson.D{})
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 		return nil
 	}
 	defer func() {
 		if err := cursor.Close(ctx); err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
 	}()
 
@@ -35,9 +35,11 @@ func List_Users() []User {
 		var user User
 		err := cursor.Decode(&user)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
-		userList = append(userList, user)
+		if user.Status == "active" {
+			userList = append(userList, user)
+		}
 	}
 
 	return userList
