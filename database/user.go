@@ -56,19 +56,16 @@ func Find_User(email string) *User {
 	return user
 }
 
-func Create_User(user User) string {
+func CreateUser(email string, status string) error {
 	client := GetClient()
 	userCollection := GetCollection(client, COLLECTION)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	userToPost := User{
 		ID:     primitive.NewObjectID(),
-		Email:  user.Email,
-		Status: user.Status,
+		Email:  email,
+		Status: status,
 	}
-	result, err := userCollection.InsertOne(ctx, userToPost)
-	if err != nil {
-		return ""
-	}
-	return result.InsertedID.(primitive.ObjectID).Hex()
+	_, err := userCollection.InsertOne(ctx, userToPost)
+	return err
 }

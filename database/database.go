@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"log"
-	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,7 +13,8 @@ var client *mongo.Client
 var userCollection *mongo.Collection
 
 func GetClient() *mongo.Client {
-	uri := os.Getenv("DATABASE_URL")
+	// uri := os.Getenv("DATABASE_URL")
+	uri := "mongodb://localhost:27017/"
 
 	if client != nil {
 		return client
