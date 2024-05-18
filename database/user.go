@@ -8,6 +8,7 @@ import (
 	. "github.com/DumanskyiDima/genesis_test/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var COLLECTION = "users"
@@ -42,17 +43,21 @@ func List_Users() []User {
 	return userList
 }
 
-func Find_User(email string) *User {
+func FindUser(email string) *User {
 	client := GetClient()
 	UserCollection := GetCollection(client, COLLECTION)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	var user *User
-	filter := bson.D{{Key: "Email", Value: email}}
+	filter := bson.D{{Key: "email", Value: email}}
 	err := UserCollection.FindOne(ctx, filter).Decode(&user)
 	if err != nil {
-		return nil
+		if err == mongo.ErrNoDocuments {
+			return nil
+		}
+		log.Fatalln(err)
 	}
+	log.Println(user)
 	return user
 }
 
@@ -62,9 +67,10 @@ func CreateUser(email string, status string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	userToPost := User{
-		ID:     primitive.NewObjectID(),
-		Email:  email,
-		Status: status,
+		ID:               primitive.NewObjectID(),
+		Email:            email,
+		Status:           status,
+		RegistrationDate: primitive.NewDateTimeFromTime(time.Now()),
 	}
 	_, err := userCollection.InsertOne(ctx, userToPost)
 	return err
