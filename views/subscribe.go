@@ -9,7 +9,7 @@ import (
 )
 
 func CreateNewSubscription(c *gin.Context) {
-	email := c.Query("email")
+	email := c.PostForm("email")
 	if email == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "email parameter is required"})
 		return

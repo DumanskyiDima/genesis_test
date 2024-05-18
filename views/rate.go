@@ -19,7 +19,7 @@ type ExchangeRate struct {
 	ExchangeDate string  `json:"exchangedate"`
 }
 
-// Using cache to reduce the number of requests to the API
+// Using cache to reduce the number of the requests to the external API
 type Cache struct {
 	Data      map[string]interface{}
 	Timestamp time.Time
