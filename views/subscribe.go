@@ -1,9 +1,10 @@
 package views
 
 import (
+	"log"
 	"net/http"
 
-	. "github.com/DumanskyiDima/genesis_test/database"
+	"github.com/DumanskyiDima/genesis_test/database"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,15 +16,18 @@ func CreateNewSubscription(c *gin.Context) {
 		return
 	}
 
-	user := FindUser(email)
-	if user != nil {
-		if user.Status == "active" {
+	existing_user := database.FindUser(email)
+	if existing_user != nil {
+		if existing_user.Status == "active" {
 			c.JSON(http.StatusConflict, gin.H{"message": "Already subscribed"})
 			return
+		} else {
+			// todo make user active
+			log.Println("User already exists but not active")
 		}
 	}
 
-	err := CreateUser(email, "active")
+	_, err := database.CreateUser(email, "active")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
